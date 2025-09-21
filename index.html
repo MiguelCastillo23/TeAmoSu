@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flores con Corazón Explosivo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: cornsilk;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+            font-family: 'Georgia', serif;
+            cursor: pointer;
+        }
+
+        /* Girasol más grande - 80px */
+        .sunflower {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            z-index: 2;
+            transition: transform 0.3s ease;
+        }
+
+        .sunflower.red {
+            z-index: 3;
+        }
+
+        .sunflower-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(
+                circle at 35% 35%, 
+                #8B4513 0%, 
+                #654321 40%, 
+                #4a2c17 70%,
+                #2d1810 100%
+            );
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            box-shadow: inset 0 2px 3px rgba(0,0,0,0.4);
+        }
+
+        .sunflower.red .sunflower-center {
+            background: radial-gradient(
+                circle at 35% 35%, 
+                #8B0000 0%, 
+                #800000 40%, 
+                #660000 70%,
+                #4D0000 100%
+            );
+        }
+
+        .sunflower-center::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 22px;
+            height: 22px;
+            background: repeating-conic-gradient(
+                from 0deg at center,
+                #654321 0deg 12deg,
+                #8B4513 12deg 24deg,
+                #4a2c17 24deg 36deg,
+                #654321 36deg 48deg
+            );
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .sunflower.red .sunflower-center::before {
+            background: repeating-conic-gradient(
+                from 0deg at center,
+                #800000 0deg 12deg,
+                #8B0000 12deg 24deg,
+                #660000 24deg 36deg,
+                #800000 36deg 48deg
+            );
+        }
+
+        .sunflower-center::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 14px;
+            height: 14px;
+            background: radial-gradient(circle, #2d1810, #1a0f0a);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .sunflower.red .sunflower-center::after {
+            background: radial-gradient(circle, #330000, #1a0000);
+        }
+
+        .petal {
+            position: absolute;
+            width: 18px;
+            height: 36px;
+            background: linear-gradient(
+                to top,
+                #FFD700 0%,
+                #FFA500 20%,
+                #FFFF99 50%,
+                #FFD700 80%,
+                #FFFF99 100%
+            );
+            border-radius: 60% 60% 40% 40%;
+            top: 50%;
+            left: 50%;
+            transform-origin: 9px 36px;
+            box-shadow: 
+                0 1px 2px rgba(0,0,0,0.2),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .sunflower.red .petal {
+            background: linear-gradient(
+                to top,
+                #FF0000 0%,
+                #CC0000 20%,
+                #FF6666 50%,
+                #FF0000 80%,
+                #FF9999 100%
+            );
+        }
+
+        .petal:nth-child(1) { transform: translate(-50%, -100%) rotate(0deg); }
+        .petal:nth-child(2) { transform: translate(-50%, -100%) rotate(25deg); }
+        .petal:nth-child(3) { transform: translate(-50%, -100%) rotate(50deg); }
+        .petal:nth-child(4) { transform: translate(-50%, -100%) rotate(75deg); }
+        .petal:nth-child(5) { transform: translate(-50%, -100%) rotate(100deg); }
+        .petal:nth-child(6) { transform: translate(-50%, -100%) rotate(125deg); }
+        .petal:nth-child(7) { transform: translate(-50%, -100%) rotate(150deg); }
+        .petal:nth-child(8) { transform: translate(-50%, -100%) rotate(175deg); }
+        .petal:nth-child(9) { transform: translate(-50%, -100%) rotate(200deg); }
+        .petal:nth-child(10) { transform: translate(-50%, -100%) rotate(225deg); }
+        .petal:nth-child(11) { transform: translate(-50%, -100%) rotate(250deg); }
+        .petal:nth-child(12) { transform: translate(-50%, -100%) rotate(275deg); }
+        .petal:nth-child(13) { transform: translate(-50%, -100%) rotate(300deg); }
+        .petal:nth-child(14) { transform: translate(-50%, -100%) rotate(325deg); }
+
+        /* Efecto de explosión */
+        .explosion {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            z-index: 100;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: explode 1.5s forwards;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(20);
+                opacity: 0;
+            }
+        }
+
+        /* Contador de clics */
+        .counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            z-index: 1000;
+        }
+        /* Notificación estilo sistema */
+        .love-toast {
+            position: fixed;
+            top: 20px;
+            right: -320px;         
+            background: #fff;
+            color: #d60000;
+            border-left: 5px solid #ff0033;
+            padding: 16px 22px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: right 0.5s cubic-bezier(.25,.8,.25,1);
+            z-index: 9999;
+        }
+        .love-toast.show {
+            right: 20px;
+        }
+        .love-toast::before {
+            content: "♥";
+            font-size: 22px;
+            color: #ff0033;
+        }
+       /* Globos de chat tipo WhatsApp */
+        .chat-container {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 9999;
+        }
+
+        .chat-bubble {
+            position: relative;
+            background: #fff;
+            color: #d60000;
+            border: 1px solid #ff0033;
+            padding: 12px 16px;
+            border-radius: 18px 18px 18px 4px; /* esquina inferior izq. "aguda" */
+            font-size: 16px;
+            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(0,0,0,.12);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity .4s ease, transform .4s ease;
+            /* align-self: flex-start; simula mensaje entrante */
+        }
+
+        .chat-bubble.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <script>
+        let flowerCount = 0;
+        let heartDrawn = false;
+        let clickCount = 0;
+        const flowers = [];
+        
+        function createSunflower(x, y, isRed = false) {
+            const flower = document.createElement('div');
+            flower.className = isRed ? 'sunflower red' : 'sunflower';
+            flower.style.left = (x - 40) + 'px';
+            flower.style.top = (y - 40) + 'px';
+            
+            // Crear pétalos
+            for (let i = 1; i <= 14; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                flower.appendChild(petal);
+            }
+
+            // Centro
+            const center = document.createElement('div');
+            center.className = 'sunflower-center';
+            flower.appendChild(center);
+
+            document.body.appendChild(flower);
+            flowers.push({x, y, element: flower, isRed});
+
+            return flower;
+        }
+        
+        function getRandomPosition() {
+            const margin = 50;
+            return {
+                x: margin + Math.random() * (window.innerWidth - 2 * margin),
+                y: margin + Math.random() * (window.innerHeight - 2 * margin)
+            };
+        }
+        
+        function createHeartOfFlowers() {
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            const scale = Math.min(window.innerWidth, window.innerHeight) / 40;
+
+            const heartPoints = [];
+            const stepT = 0.15;          // borde más escaso
+            const stepR = 0.1;           // menos capas internas
+
+            // Borde + capas internas
+            for (let t = 0; t <= 2 * Math.PI; t += stepT) {
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+
+                for (let r = 0.3; r <= 0.9; r += stepR) {
+                    heartPoints.push({
+                        x: centerX + scale * x * r,
+                        y: centerY + scale * y * r
+                    });
+                }
+            }
+
+            // Quita duplicados
+            const seen = new Set();
+            const uniquePoints = heartPoints.filter(p => {
+                const key = Math.round(p.x) + ',' + Math.round(p.y);
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+
+            // Coloca las flores
+            uniquePoints.forEach((p, i) => {
+                setTimeout(() => createSunflower(p.x, p.y, true), i * 8);
+            });
+
+            // ... después de uniquePoints.reverse() y del forEach ...
+            const totalTime = uniquePoints.length * 8;
+            setTimeout(() => {
+                // 1. Limpiar todas las flores
+                flowers.forEach(f => f.element.remove());
+                flowers.length = 0;
+
+                // 2. Crear contenedor del chat
+                const chat = document.createElement('div');
+                chat.className = 'chat-container';
+                document.body.appendChild(chat);
+
+                // 3. Mensajes a mostrar
+                const mensajes = [
+                    '♥ Te amo infinito mi potito!',
+                    '♥ Gracias por cada clic juntos',
+                    '♥ Gracias por tantas cosas!',
+                    '♥ Gracias por seguir siendo parte de mi vida, apesar de todo',
+                    '♥ Te amo babosita!',
+                    '♥ Mi roncatita!',
+                    'Dormir tu vida caracho!',
+                    'Ya despierta carajo!!',
+                    'Bromita mi amor, despiertaaa!! ♥',
+                    'No teno plata para comprarte un ramito, lo siento mi amor :c',
+                    'Pero me esforcé para poder hacer esto, espero te guste...',
+                    'O quizá no, y no te culpo mi amor :c',
+                    'Lo hice con todo el amor del mundo ♥',
+                    'Son casi las 3 a.m. y recién estoy terminando esto',
+                    'Espero te guste mi amor!',
+                    'Te amooooooo mi vida! ♥',
+                ];
+
+                // 4. Mostrar uno por uno
+                mensajes.forEach((texto, i) => {
+                    setTimeout(() => {
+                        const msg = document.createElement('div');
+                        msg.className = 'chat-bubble';
+                        msg.textContent = texto;
+                        chat.appendChild(msg);
+                        setTimeout(() => msg.classList.add('show'), 10);
+                    }, i * 1500); // cada 1.5 segundos
+                });
+            }, totalTime);
+        }
+        
+        document.addEventListener('click', function(e) {
+            if (heartDrawn) return;
+            
+            clickCount++;
+            // document.getElementById('counter').textContent = `Clics: ${clickCount}/5`;
+            
+            // Crear flores amarillas normales - crecimiento exponencial
+            const numFlowers = 5 * Math.pow(2, clickCount);
+            for (let i = 0; i < numFlowers; i++) {
+                const pos = getRandomPosition();
+                createSunflower(pos.x, pos.y);
+                flowerCount++;
+            }
+            
+            // Si hemos hecho suficientes clics, mostrar el corazón
+            if (clickCount >= 5 && !heartDrawn) {
+                heartDrawn = true;
+                setTimeout(() => {
+                    createHeartOfFlowers();
+                }, 500);
+            }
+        });
+        
+        // Prevenir el menú contextual
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+        
+        // Reiniciar al cambiar tamaño de ventana
+        window.addEventListener('resize', function() {
+            flowers.forEach(flower => {
+                if (flower.element.parentNode) {
+                    document.body.removeChild(flower.element);
+                }
+            });
+            flowers.length = 0;
+            flowerCount = 0;
+            heartDrawn = false;
+            clickCount = 0;
+            document.getElementById('counter').textContent = "Clics: 0/5";
+        });
+    </script>
+</body>
+</html>
