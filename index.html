@@ -293,76 +293,102 @@
                 y: margin + Math.random() * (window.innerHeight - 2 * margin)
             };
         }
-        
-        function createHeartOfFlowers() {
+        function drawHeartWithTrail() {
             const centerX = window.innerWidth / 2;
             const centerY = window.innerHeight / 2;
-            const scale = Math.min(window.innerWidth, window.innerHeight) / 40;
+            const finalSize = Math.min(window.innerWidth, window.innerHeight) * 0.35;
 
-            const heartPoints = [];
-            const stepT = 0.15;          // borde más escaso
-            const stepR = 0.1;           // menos capas internas
+            const canvas = document.createElement('canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            canvas.style.position = 'fixed';
+            canvas.style.top = 0;
+            canvas.style.left = 0;
+            canvas.style.zIndex = 10;
+            document.body.appendChild(canvas);
 
-            // Borde + capas internas
-            for (let t = 0; t <= 2 * Math.PI; t += stepT) {
-                const x = 16 * Math.pow(Math.sin(t), 3);
-                const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+            const ctx = canvas.getContext('2d');
+            let currentSize = 0;
+            let pulse = 0;
 
-                for (let r = 0.3; r <= 0.9; r += stepR) {
-                    heartPoints.push({
-                        x: centerX + scale * x * r,
-                        y: centerY + scale * y * r
-                    });
+            function drawHeart(size, alpha = 1) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = '#ff0033';
+                ctx.beginPath();
+                for (let t = 0; t <= 2 * Math.PI; t += 0.01) {
+                    const x = size * 0.05 * 16 * Math.pow(Math.sin(t), 3);
+                    const y = -size * 0.05 * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+                    if (t === 0) ctx.moveTo(centerX + x, centerY + y);
+                    else ctx.lineTo(centerX + x, centerY + y);
                 }
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = '#d60000';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                ctx.restore();
             }
 
-            // Quita duplicados
-            const seen = new Set();
-            const uniquePoints = heartPoints.filter(p => {
-                const key = Math.round(p.x) + ',' + Math.round(p.y);
-                if (seen.has(key)) return false;
-                seen.add(key);
-                return true;
-            });
+            // 1. APARICIÓN (crece desde 0)
+            const grow = () => {
+                if (currentSize < finalSize) {
+                    currentSize += finalSize * 0.015;
+                    drawHeart(currentSize);
+                    requestAnimationFrame(grow);
+                } else {
+                    currentSize = finalSize;
+                    pulseBeat();
+                }
+            };
 
-            // Coloca las flores
-            uniquePoints.forEach((p, i) => {
-                setTimeout(() => createSunflower(p.x, p.y, true), i * 8);
-            });
+            // 2. PULSO suave mientras está completo
+            const pulseBeat = () => {
+                pulse += 0.04;
+                const scale = 1 + Math.sin(pulse) * 0.03; // 3% de pulso
+                drawHeart(finalSize * scale, 1);
+                pulseId = requestAnimationFrame(pulseBeat);
+            };
 
-            // ... después de uniquePoints.reverse() y del forEach ...
-            const totalTime = 5;
+            let pulseId;
+            grow(); // empieza la animación
+        }
+
+        function createHeartOfFlowers() {
+            drawHeartWithTrail(); 
+
+            const heartDuration = 2000; 
             setTimeout(() => {
-                // 1. Limpiar todas las flores
-                flowers.forEach(f => f.element.remove());
+
+                flowers.forEach(f => {     // 2. limpia flores si las hubo
+                    if (f.element.parentNode) f.element.remove();
+                });
                 flowers.length = 0;
 
-                // 2. Crear contenedor del chat
                 const chat = document.createElement('div');
                 chat.className = 'chat-container';
                 document.body.appendChild(chat);
 
-                // 3. Mensajes a mostrar
                 const mensajes = [
                     '♥ Te amo infinito mi potito!',
                     '♥ Gracias por cada clic juntos',
                     '♥ Gracias por tantas cosas!',
-                    '♥ Gracias por seguir siendo parte de mi vida, apesar de todo',
+                    '♥ Gracias por seguir siendo parte de mi vida, a pesar de todo',
                     '♥ Te amo babosita!',
                     '♥ Mi roncatita!',
                     'Dormir tu vida caracho!',
                     'Ya despierta carajo!!',
                     'Bromita mi amor, despiertaaa!! ♥',
-                    'No teno plata para comprarte un ramito, lo siento mi amor :c',
+                    'No tengo plata para comprarte un ramito, lo siento mi amor :c',
                     'Pero me esforcé para poder hacer esto, espero te guste...',
                     'O quizá no, y no te culpo mi amor :c',
                     'Lo hice con todo el amor del mundo ♥',
                     'Son casi las 3 a.m. y recién estoy terminando esto',
                     'Espero te guste mi amor!',
-                    'Te amooooooo mi vida! ♥',
+                    'Te amooooooo mi vida! ♥'
                 ];
 
-                // 4. Mostrar uno por uno
                 mensajes.forEach((texto, i) => {
                     setTimeout(() => {
                         const msg = document.createElement('div');
@@ -370,9 +396,9 @@
                         msg.textContent = texto;
                         chat.appendChild(msg);
                         setTimeout(() => msg.classList.add('show'), 10);
-                    }, i * 1500); // cada 1.5 segundos
+                    }, i * 1500);
                 });
-            }, totalTime);
+            }, heartDuration);
         }
         
         document.addEventListener('click', function(e) {
